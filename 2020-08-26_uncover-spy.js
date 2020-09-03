@@ -33,14 +33,13 @@ function uncover_spy(n, trust) {
   // trusting = 0
   const dataset = {};
 
-  let spy = null;
-  let suspectsCount = 0;
+  let spy = new Set();
 
   // loop through all the relationships and add each person to the dataset obj
   // obj key is person
   // obj value is [trusted by count, trusting count]
   // the spy will be the person with [trustedBy===n-1, trusting===0]
-  trust.forEach((relationship, index) => {
+  trust.forEach((relationship) => {
     const trusting = relationship[0];
     const trusted = relationship[1];
 
@@ -62,18 +61,16 @@ function uncover_spy(n, trust) {
       dataset[trusted][0] === n - 1 &&
       dataset[trusted][1] === 0
     ) {
-      suspectsCount++;
-      spy = trusted;
+      spy.add(trusted);
     }
 
-    if (trusting === spy) {
-      suspectsCount--;
-      spy = -1;
+    if (spy.has(trusting)) {
+      spy.delete(trusting);
     }
   });
 
-  if (suspectsCount === 1) {
-    return spy;
+  if (spy.size === 1) {
+    return spy.values().next().value;
   }
 
   return -1;
